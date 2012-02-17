@@ -1,0 +1,49 @@
+<p class="title">
+  <%= f.label :title %>
+  <%= f.text_field :title %>
+</p>
+
+<% if params[:type] == "private" -%>
+  <%= f.hidden_field :type %>
+  <p class="private_users">
+    <%= f.select(:user_id, messageboard.users.collect{|u| [u.name, u.id]}, {}, { :multiple => true, 'data-placeholder' => 'select users to participate in this topic' }) %>
+  </p>
+<% end -%>
+
+<% if current_user && current_user.admins?(messageboard) -%>
+<div id="drawer">
+  <div id="attributes">
+    <p class="locked">
+      <%= f.label :locked %>
+      <%= f.check_box :locked %>
+    </p>
+    <p class="sticky">
+      <%= f.label :sticky -%>
+      <%= f.check_box :sticky -%>
+    </p>
+  </div>
+  <div class="handle"><a href="#attributes">More</a></div>
+</div>
+<% end -%>
+
+<%= f.fields_for :posts do |post_form| %>
+  <p class="content">
+    <%= post_form.label :content %>
+    <%= post_form.text_area :content, :rows => 5 %>
+  </p>
+
+  <%= post_form.fields_for :attachments do |attachment_form|  %>
+    <p>
+    <%= attachment_form.label :attachment %><br />
+    <%= attachment_form.file_field :attachment %>
+    </p>
+    <%= attachment_form.link_to_remove "Remove this attachment" %>
+  <% end %>
+  <%= post_form.link_to_add "Add attachment", :attachments %>
+  
+
+
+  <%= post_form.select :filter, Post.filters %>
+<% end %>
+
+

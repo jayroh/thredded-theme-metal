@@ -1,0 +1,30 @@
+<% content_for :page_id do %>topics_listing<% end %>
+<% content_for :page_title do %><%= site.title %> | <%= messageboard.title %> | Recent Topics<% end %>
+<% content_for :header_nav do %>
+    <nav>
+      <ul>
+        <% if messageboard.posting_for_anonymous? || (current_user && current_user.can_post_to?(messageboard)) -%>
+          <li class="new_topic"><%= link_to "Create a New Topic", new_messageboard_topic_path(messageboard) %></li>
+        <% end -%>
+      </ul>
+    </nav>
+<% end %>
+<header>
+  <nav>
+    <ul>
+      <li><a href="/">Forums</a> &rarr; </li>
+    </ul>
+  </nav>
+  <h1><%= messageboard.title %></h1>
+  <h2>Recent Updates</h2>
+  <div class="title">Topic Title</div>
+  <div class="posts">Posts</div>
+  <div class="started">Started</div>
+  <div class="updated">Updated</div>
+</header>
+<%= render :partial => "topics/topic_condensed", :collection => @topics, :as => :t %>
+<footer>
+  <% if messageboard.posting_for_anonymous? || (current_user && current_user.can_post_to?(messageboard)) -%>
+    <%= link_to "Create a New Topic", new_messageboard_topic_path(messageboard) %>
+  <% end -%>
+</footer>

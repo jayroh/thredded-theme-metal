@@ -1,0 +1,59 @@
+<% content_for :page_id do %>topics_posts<% end %>
+<% content_for :page_title do %><%= site.title %> | <%= topic.title %> | Posts<% end %>
+<% content_for :header_nav do %>
+    <nav>
+      <ul>
+        <% if messageboard.posting_for_anonymous? || (current_user && current_user.can_post_to?(messageboard)) -%>
+          <li class="new_topic"><%= link_to "Create a New Topic", new_messageboard_topic_path(messageboard) %></li>
+          <li class="reply_to_topic"><a href="#new_post">Reply To This Topic</a></li>
+        <% end -%>
+        <% if (current_user && current_user.admins?(messageboard)) || topic.user == current_user  -%>
+          <li class="edit_topic"><%= link_to "edit subject", edit_messageboard_topic_path(messageboard, topic) %></li>
+        <% end -%>
+      </ul>
+    </nav>
+<% end %>
+
+  <header>
+    <nav class="breadcrumbs">
+      <ul>
+        <li><a href="/">Forums</a> &rarr; </li>
+        <li><%= link_to messageboard.title, messageboard_path(messageboard) %> &rarr; </li>
+      </ul>
+    </nav>
+    <h1><%= topic.title %></h1> 
+    <h2><%= topic.posts_count %> posts</h2>
+    <% if topic.users_to_sentence %>
+      <cite><%= topic.users_to_sentence %></cite>
+    <% end %>
+  </header>
+
+  <%= render topic.posts %>
+  
+  <% if messageboard.posting_for_anonymous? || (current_user && current_user.can_post_to?(messageboard)) -%>
+    <%= nested_form_for([messageboard, topic, @post], :html => { :multipart => true }) do |f| %>
+      <p>
+        <%= f.label :your_reply %>
+        <%= f.text_area :content, :rows => 5 %>
+      </p>
+      <%= f.fields_for :attachments do |attachment_form|  %>
+        <p>
+        <%= attachment_form.label :attachment %><br />
+        <%= attachment_form.file_field :attachment %>
+        </p>
+        <%= attachment_form.link_to_remove "Remove this attachment" %>
+      <% end %>
+      <%= f.link_to_add "Add attachment", :attachments %>
+      <%= f.select :filter, Post.filters %>
+      <%= f.submit "Submit" %>
+    <% end -%>
+  <% end -%>
+
+  <footer>
+    <nav class="breadcrumbs">
+      <ul>
+        <li><a href="/">Forums</a> &rarr; </li>
+        <li><%= link_to messageboard.title, messageboard_path(messageboard) %> &rarr; </li>
+      </ul>
+    </nav>
+  </footer>
